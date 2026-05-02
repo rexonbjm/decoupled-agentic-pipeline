@@ -1,0 +1,812 @@
+{
+  "name": "ai extraction",
+  "nodes": [
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite-preview",
+        "options": {}
+      },
+      "id": "33df88a4-1b2f-43a5-95f7-28823e101e8e",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        96,
+        32
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "XQmd1SAxWTj7taXv",
+          "name": "n8n lead api"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "11ab5895-4585-44ce-93c5-781036818f35",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        672,
+        496
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0601f2d2-2522-471e-9e11-29498a47e19a",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "@"
+            },
+            {
+              "id": "865348ee-cb34-4579-a27b-41880b7aef61",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "N/A",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "3683886b-d758-4172-a7c0-d6de65003e83",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "no email address found",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c94f3abc-2bb6-43cd-9270-6b17d87ee067",
+      "name": "no email checker",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -128,
+        224
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get the current item data\nconst d = $input.item.json;\n\n// --- Layer 1: Structure Check ---\n// Ensure the object actually contains data\nif (!d || Object.keys(d).length === 0) {\n  return {\n    ...d,\n    _isSanityCheckPassed: false,\n    _rejectionReason: \"Empty Object\"\n  };\n}\n\n// --- Layer 2: Required Field Check ---\n// Check if Email and Name exist and aren't placeholders\nconst hasEmail = d.email && d.email.includes('@');\nconst hasName = d.name && d.name.length > 2 && d.name.toLowerCase() !== 'test';\n\n// --- Layer 3: Formatting Check ---\n// Flag common \"junk\" indicators\nconst isJunkEmail = d.email ? (d.email.includes('example.com') || d.email.includes('test.com')) : true;\nconst isGenericName = d.name ? (d.name.toLowerCase().includes('user') || d.name.toLowerCase().includes('admin')) : true;\n\n// --- Final Decision Engine ---\nconst isSanityCheckPassed = hasEmail && hasName && !isJunkEmail && !isGenericName;\n\n// Determine the primary reason for failure (if any)\nlet reason = \"\";\nif (!hasEmail) reason = \"Invalid/Missing Email\";\nelse if (!hasName) reason = \"Invalid/Short Name\";\nelse if (isJunkEmail) reason = \"Junk Domain Found\";\nelse if (isGenericName) reason = \"Generic/Bot Name\";\n\nreturn {\n  ...d, // Keep all your original data\n  _isSanityCheckPassed: isSanityCheckPassed,\n  _rejectionReason: reason\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        224
+      ],
+      "id": "120fbca9-e393-41fc-8767-dc87a89d8a8c",
+      "name": "valid email checker"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "75fe913b-c9d0-4c61-8114-4e9c361be16a",
+              "leftValue": "={{ $json._isSanityCheckPassed }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        544,
+        224
+      ],
+      "id": "149ce9bb-4844-4af7-95ce-ca5db09be42b",
+      "name": "valid email filter"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY",
+          "mode": "list",
+          "cachedResultName": "extracted data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Edit Fields').item.json.id }}",
+            "description": "={{ $('info extractor').item.json.output['Short Description'] }}",
+            "fun fact": "={{ $('info extractor').item.json.output['Fun Fact/Personalization Hook'] }}",
+            "company name": "={{ $('Get row(s) in sheet').item.json['business name'] }}",
+            "email": "={{ $json.email }}",
+            "url": "={{ $json.website }}",
+            "status": "NONE"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fun fact",
+              "displayName": "fun fact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "157a40c1-8d1c-4295-8b56-ff79f2361ecb",
+      "name": "adding list of leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        768,
+        224
+      ],
+      "typeVersion": 4.6,
+      "credentials": {
+        "googleApi": {
+          "id": "tzDxclWOV2vlbSUu",
+          "name": "freelance lead sheet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "1-P5esf9W7hy-L-f7DvqAgccImrWXFdtP-7HAmLdw3MQ",
+          "mode": "list",
+          "cachedResultName": "raw data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-P5esf9W7hy-L-f7DvqAgccImrWXFdtP-7HAmLdw3MQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-P5esf9W7hy-L-f7DvqAgccImrWXFdtP-7HAmLdw3MQ/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "processing status",
+              "lookupValue": "PENDING"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -608,
+        -128
+      ],
+      "id": "13f008d4-1043-4644-acb4-28521b19c764",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "tzDxclWOV2vlbSUu",
+          "name": "freelance lead sheet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1c7dbe1-47ea-4e20-b4d9-72a62ebd6cfa",
+              "name": "row_number",
+              "value": "={{ $json.row_number }}",
+              "type": "number"
+            },
+            {
+              "id": "4a531f91-3387-47da-894f-0138c8c0ec02",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "78f6e4c1-66c9-47c0-a979-a1dab250604b",
+              "name": "raw html",
+              "value": "={{ $json['raw html'] }}",
+              "type": "string"
+            },
+            {
+              "id": "146ba14d-36bf-49cd-8165-1d4030229d96",
+              "name": "website",
+              "value": "={{ $json.website }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        -128
+      ],
+      "id": "fbf2da58-56ef-402a-be22-71759e8338da",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json['raw html'] }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Email Address",
+              "description": "=Find the most relevant business email (e.g., info@, hello@, or the founder's name). Ensure it follows the proper name@domain.com format. If multiple exist, prioritize the one most likely to be used for business inquiries.",
+              "required": true
+            },
+            {
+              "name": "Short Description",
+              "description": "A concise 1-sentence summary (max 20 words) of what the business actually does. Focus on their primary service or product.",
+              "required": true
+            },
+            {
+              "name": "Fun Fact/Personalization Hook",
+              "description": "Identify one specific, unique detail about this company that could be used as an icebreaker in a cold email. This could be a specific project they mentioned, a unique value proposition, an award, or their specific location in Kathmandu (if applicable). Avoid generic statements like \"They have a great team.\"",
+              "required": true
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "=System: You are an expert extraction algorithm.\\nOnly extract relevant information from the text.\\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value.\\nYou must format your output as a JSON value that adheres to a given \"JSON Schema\" instance.\\n\\n\"JSON Schema\" is a declarative language that allows you to annotate and validate JSON documents.\\n\\nFor example, the example \"JSON Schema\" instance {\n  \"properties\": {\n    \"foo\": {\n      \"type\": \"array\",\n      \"description\": \"a list of test words\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"required\": [\n    \"foo\"\n  ]\n}\\nwould match an object with one required property, \"foo\". The \"type\" property specifies \"foo\" must be an \"array\", and the \"description\" property semantically describes it as \"a list of test words\". The items within \"foo\" must be strings.\\nThus, the object {\"foo\": [\"bar\", \"baz\"]} is a well-formatted instance of this example \"JSON Schema\". The object {\"properties\": {\"foo\": {\"type\": \"array\"}}} is not well-formatted.\\n\\nYour output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!\\n\\nHere is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:\\n```json\\n{\"type\":\"object\",\"properties\":{\"Email Address\":{\"type\":\"string\",\"description\":\"find out the best only one email address from the website after scraping the website. The mail address have to be in ideal format.\"}},\"required\":[\"Email Address\"],\"additionalProperties\":false,\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\\n```\\n\\nHuman: Website:  {{ $json.url }}"
+        }
+      },
+      "id": "69ec9f69-5649-48b6-a9e7-431d4f64c76f",
+      "name": "info extractor",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        0,
+        -128
+      ],
+      "typeVersion": 1.2,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -400,
+        -128
+      ],
+      "id": "745c7291-9874-450a-8796-802519efeb74",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1-P5esf9W7hy-L-f7DvqAgccImrWXFdtP-7HAmLdw3MQ",
+          "mode": "list",
+          "cachedResultName": "raw data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-P5esf9W7hy-L-f7DvqAgccImrWXFdtP-7HAmLdw3MQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-P5esf9W7hy-L-f7DvqAgccImrWXFdtP-7HAmLdw3MQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Edit Fields').item.json.id }}",
+            "processing status": "PROCESSED",
+            "email": "={{ $json.output['Email Address'] }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "business name",
+              "displayName": "business name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "raw html",
+              "displayName": "raw html",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "extraction time",
+              "displayName": "extraction time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "processing status",
+              "displayName": "processing status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -336,
+        224
+      ],
+      "id": "3f485322-bf3f-43b4-82d7-1bfeaf308cb6",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "tzDxclWOV2vlbSUu",
+          "name": "freelance lead sheet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -832,
+        -128
+      ],
+      "id": "da0bde7b-f5b9-45a9-bb7a-f29b3d726d0e",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e2cf8359-6d5c-4b80-bc47-24b7aeb09e1c",
+              "name": "website",
+              "value": "={{ $('Edit Fields').item.json.website }}",
+              "type": "string"
+            },
+            {
+              "id": "67ea0588-234b-46d7-a6fa-ecede8855244",
+              "name": "name",
+              "value": "={{ $('Get row(s) in sheet').item.json['business name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "fc9bd27a-8ee1-4b2f-867d-97171fcf7d0a",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        224
+      ],
+      "id": "61f68bf2-57d6-421b-87f2-dea9a9bb572c",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        992,
+        224
+      ],
+      "id": "ba975d16-d3c0-4868-8ed6-a677b6f18e27",
+      "name": "Wait",
+      "webhookId": "101fcbf8-e585-4293-872b-e58f9db50123"
+    }
+  ],
+  "pinData": {
+    "Get row(s) in sheet": [
+      {
+        "json": {
+          "row_number": 2,
+          "id": 202605021842030,
+          "business name": "Logistics Company in New York",
+          "website": "https://omnilogistics.com/locations/omni-logistics-new-york-logistics-company-in-new-york-new-york/",
+          "email": "",
+          "raw html": "[data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201024%20161'%3E%3C/svg%3E][https://omnilogistics.com/wp-content/uploads/2020/02/omni_logo_horizontal_rev-1024x161.png]\nhttps://omnilogistics.com/\nLogin [https://omnilogistics.com/login-and-tracking]\nContact [https://omnilogistics.com/contact-us/]\nOmni Logistics-New York\n\n\n\n\nNEW YORK, NEW YORK LOGISTICS\n\nOmni Logistics has earned a reputation for being the go-to transportation and\nlogistics company in New York. We specialize in global freight forwarding\nservices such as air, ocean import & export, ground freight and logistics\nservices. No matter the size or destination of your shipment, you can be assured\nwe will deliver.\n\nCONTACT US\n\n\"*\" indicates required fields\n\nFirst Name*\n\nLast Name*\n\nCompany Name*\n\nWork Email*\n\nWork Phone*\n\nHow can we help?*\n\nCAPTCHA\n\n\n\n\n\n\n\n\n\n\n\n\n\nΔ\n\n\nFREIGHT FORWARDING\n\n\nFREIGHT FORWARDING\n\nWhether you are looking for time critical solutions, white glove and managed\ndelivery, or domestic and international freight, Omni Logistics can handle your\nfreight forwarding needs.\nDiscover the Possibilities\n[https://omnilogistics.com/our-solutions__trashed/freight-forwarding/]\n\n\nWAREHOUSING & DISTRIBUTION\n\n\nWAREHOUSING & DISTRIBUTION\n\nOmni Logistics provides global 3PL warehousing & distribution solutions\nincluding cross dock logistics, free trade zone solutions, and specialized\nservices such as kitting, small pack, and many more!\nDiscover the Possibilities\n[https://omnilogistics.com/our-solutions__trashed/warehousing-distribution/]\n\n\nSPECIALIZED SERVICES\n\n\nSPECIALIZED SERVICES\n\nOmni finds solutions for complex logistics challenges such as trade show\nlogistics, data center & lab relocations, reverse logistics, project cargo, and\nmore. No matter how complex, Omni can handle it.\nDiscover the Possibilities\n[https://omnilogistics.com/our-solutions__trashed/specialized-services/]\n\n\nTECHNOLOGY\n\n\nTECHNOLOGY\n\nLooking for technology that improves visibility and makes collaboration go more\nsmoothly? Omni has got you covered.\nDiscover the Possibilities\n[https://omnilogistics.com/our-solutions__trashed/technology/]\n\n\nMACH1 IS NOW OMNI LOGISTICS\n\nMach 1 is now Omni Logistics! We look forward to offering a wide range of\nsolutions and capabilities as part of the Omni team. You will now be redirected\nto the Omni Logistics website.\n\n \n\nWe use cookies on our website to give you the most relevant experience by\nremembering your preferences and repeat visits. By clicking “Accept”, you\nconsent to the use of ALL the cookies.\n\nDo not sell my personal information [javascript:void(0)].\nCookie settingsAccept\nPrivacy & Cookies Policy\nClose\n\nPRIVACY OVERVIEW\n\nThis website uses cookies to improve your experience while you navigate through\nthe website. Out of these cookies, the cookies that are categorized as necessary\nare stored on your browser as they are essential for the working of basic\nfunctionalities of the website. We also use third-party cookies that help us\nanalyze and understand how you use this website. These cookies will be stored in\nyour browser only with your consent. You also have the option to opt-out of\nthese cookies. But opting out of some of these cookies may have an effect on\nyour browsing experience.\nNecessary\nNecessary\nAlways Enabled\n\nNecessary cookies are absolutely essential for the website to function properly.\nThis category only includes cookies that ensures basic functionalities and\nsecurity features of the website. These cookies do not store any personal\ninformation.\n\nNon Necessary\nnon-necessary\n\nAny cookies that may not be particularly necessary for the website to function\nand is used specifically to collect user personal data via analytics, ads, other\nembedded contents are termed as non-necessary cookies. It is mandatory to\nprocure user consent prior to running these cookies on your website.\n\n\n\n\n[https://px.ads.linkedin.com/collect/?pid=1171930&fmt=gif]",
+          "extraction time": "05-02-2026 (6:42 PM)",
+          "processing status": "PENDING"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 3,
+          "id": 202605021842060,
+          "business name": "New York Logistics",
+          "website": "https://www.aitworldwide.com/locations/new-york-new-york-2/",
+          "email": "",
+          "raw html": "Skip to Main Content\n * Events [https://www.aitworldwide.com/events/]\n * Newsroom [https://www.aitworldwide.com/newsroom/]\n * Contact Us [https://www.aitworldwide.com/contact-us/]\n\nFasTrak My Shipment Track My Shipment\nMyAIT [https://myait.aitworldwide.com ]\nAIT Worldwide Logistics\n[https://www.aitworldwide.com/getContentAsset/d6b3e14f-8291-4048-9df8-9779a70ab445/dfc3d011-8f63-43f6-9ed8-4b444333a1d0/logo-ait.png?language=en-US]\nhttps://www.aitworldwide.com/\nToggle search\nSearch site Submit search\nToggle menu\n * Events [https://www.aitworldwide.com/events/]\n * Newsroom [https://www.aitworldwide.com/newsroom/]\n * Contact Us [https://www.aitworldwide.com/contact-us/]\n\nToggle search\nSearch site Submit search\n[https://www.aitworldwide.com/getContentAsset/29b9903f-b6de-4b7f-b19b-2fcd014f9e29/dfc3d011-8f63-43f6-9ed8-4b444333a1d0/1920x480/ait-new-york-city-delivery-1920x480.jpg?language=en-US]\n\n\nNEW YORK, NEW YORK - HOME DELIVERY\n\n\n146 Hanse Ave\nFreeport, NY 11520\nGOOGLE MAPS [https://maps.google.com/maps?cid=10295323329292378986] APPLE MAPS\n[https://maps.apple.com/place?auid=17340974544708848122]\nPhone: +1 866 939-7737 [tel:+18669397737]\nTime Zone: UTC -5:00 (Eastern Standard Time)\nOpening Hours: Weekdays 6:00 a.m. - 8:00 p.m.\nSaturday - Sunday 6:00 a.m. - 1:00 p.m.\n\n\nADDITIONAL CONTACT INFO\n\nLocal Phone: +1 201 984-3050\nDick's Sporting Goods Delivery Inquiries: +1 855 413-8100\nIKEA Service Inquiries: +1 201 984-3052\n\n\n\n\n\nPARTNER WITH NEW YORK LOGISTICS EXPERTS TO GROW YOUR REACH, BOTTOM LINE\n\n\nDELIGHT CUSTOMERS WITH ENHANCED TRANSPORTATION LOGISTICS SOLUTIONS FROM ONE OF\nTHE LEADING FREIGHT COMPANIES IN NEW YORK\n\nWhether your organization is based on the U.S. East Coast, or half a world\naway,  AIT’s Long Island team is ready to help you scale. Backed by decades of\nexperience and global infrastructure, our New York logistics professionals\ndeliver custom transportation logistics solutions [/solutions/] to meet your\nregional and international shipping needs.\n\nAs one of the most trusted New York logistics companies, we specialize\nin home delivery, retail fulfillment, and global freight forwarding from Long\nIsland to anywhere in the world. Our full suite of services include:\n\n * Comprehensive air [/services/air-freight/], ground\n   [/services/ground-distribution/], sea [/services/sea-freight/], and\n   intermodal  [/services/intermodal/]door-to-door services\n * Concierge, white glove delivery [/services/white-glove/] options\n * Warehouse management [/services/warehouse-management/] expertise\n * Simple software integration [/services/transportation-technology/]\n * In-house customs brokerage\n   [/services/customs-clearance/ait-customs-brokerage/] and Wheels Up customs\n   clearance program [/services/wheel-s-up-clearance/]\n * And much more [/services/]!\n\nPrevious Slide\n[https://www.aitworldwide.com/getContentAsset/13a99c4d-1396-4fed-badd-6279f9265600/dfc3d011-8f63-43f6-9ed8-4b444333a1d0/300x300/sel-jfk-building-exterior-01-300x300.jpg?language=en-US]\n\n\nBUILDING ENTRANCE\n\n[https://www.aitworldwide.com/getContentAsset/a8d363a0-910c-415b-9f3f-68867da4c50c/dfc3d011-8f63-43f6-9ed8-4b444333a1d0/300x300/sel-jfk-building-exterior-02-300x300.jpg?language=en-US]\n\n\nTHE DOCKS\n\n[https://www.aitworldwide.com/getContentAsset/777d280f-205c-4957-9860-d1b7767098e7/dfc3d011-8f63-43f6-9ed8-4b444333a1d0/300x300/sel-jfk-team-01-300x300.jpg?language=en-US]\n\n\nTHE TEAM VOLUNTEERING\n\nNext Slide\n\n\n\nWHAT SETS AIT APART FROM OTHER LOGISTICS COMPANIES IN NEW YORK?\n\nAt AIT, our business is supply chain solutions. We're a freight forwarder,\nyes—but we're much more than that.\n\nFor customers looking for New York logistics companies, and all our clients all\naround the world, we act as a transportation services liaison—a deeply\nexperienced and connected [/about-ait/] access point to a worldwide network of\nprofessionals and resources.\n\nOur reach and expertise spans across every cargo channel and method, from air to\nsea to road to rail. And our collection of logistics support services includes a\nmix of offerings shippers won't find anywhere else, including insurance,\nadvanced technology integrations, in-house customs brokerage, and more.\n\n\nWHAT TYPES OF SHIPMENTS DOES AIT-LONG ISLAND HANDLE?\n\nOur talented team of freight forwarders on Long Island is part of a global\nnetwork that creates transportation logistics solutions every day for nearly\nevery industry [/solutions/], with a strong local focus on home delivery\n[/solutions/residential/].\n\n\nWHAT RETAIL OR RESIDENTIAL DELIVERY SERVICES CAN AIT-LONG ISLAND PROVIDE?\n\nSince 2001, our team on Long Island has served some of the largest retailers and\ne-commerce companies in the world as part of Select Express & Logistics\n[/services/ground-distribution/final-mile-delivery/]. So, whether you're\nshipping to a single-family home, a warehouse, or a store, they'll work with you\nto develop a creative, flexible logistics solution that will give you an edge in\ntoday's highly competitive landscape. Their comprehensive list of retail and\nresidential delivery services include:\n * Threshold\n * Room of choice\n * White glove\n * In-home/In-store assembly\n * Dedicated vehicles\n * On-demand local couriers\n\n\nDOES AIT HAVE FREIGHT FORWARDING FACILITIES OUTSIDE OF LONG ISLAND?\n\nYes! Our expanding footprint currently includes more than 150 facilities across\nAsia, Europe, the Middle East, and North America.\n\nIn New York state, you’ll find AIT’s specialized Life Sciences team\n[https://www.aitworldwide.com/locations/new-york-new-york-life-sciences/], our\nSyracuse freight forwarding team\n[https://www.aitworldwide.com/locations/syracuse-new-york/], and our home\ndelivery logistics team\n[https://www.aitworldwide.com/locations/new-york-new-york-3/] serving the\nbroader metro region.\nExplore AIT's global locations [https://www.aitworldwide.com/locations/]\n\n\nWHAT CARGO SECURITY MEASURES AND CERTIFICATIONS DOES AIT'S LONG ISLAND SHIPPING\nFACILITY PROVIDE?\n\nAIT is a member of the Transport Asset Protection Association\n[/risk-management/tapa/], and all of AIT's North American locations feature\nmultiple, advanced safety and security features, including 24-hour monitoring,\nclosed-circuit cameras, keypad access and a driver check-in and escort policy.\n\nAll U.S. AIT facilities are also authorized economic operators\n[/risk-management/authorized-economic-operator/].\nLearn more about AIT's credentials and approach to cargo security\n[https://www.aitworldwide.com/risk-management/cargo-security/]\n\n\nTEAM WITH ONE OF THE TOP NEW YORK LOGISTICS COMPANIES\n\nWhether you need help with local New York logistics or global transportation\nsolutions, when you add one of the leading freight companies in New York to your\nbench, you'll see instant results. \n\nCONTACT AN AIT REPRESENTATIVE [/contact-us/ship-with-ait/]\n\n\nADDITIONAL RESOURCES\n\n * \n   https://www.aitworldwide.com/newsroom/ait-acquiring-final-mile-3pl-select-express-and-logistics/\n   November 16, 2021\n   \n   AIT WORLDWIDE LOGISTICS ACQUIRING FINAL MILE 3PL SELECT EXPRESS & LOGISTICS\n   [https://www.aitworldwide.com/newsroom/ait-acquiring-final-mile-3pl-select-express-and-logistics/]\n   \n   The deal creates a robust omnichannel distribution solution by merging AIT's\n   world-class freight forwarding with Select's extensive final mile delivery\n   and assembly services\n\n * \n   https://www.aitworldwide.com/resources/ait-holiday-schedules/united-states/\n   December 31, 2025\n   \n   AIT HOLIDAY SCHEDULE FOR THE UNITED STATES\n   [https://www.aitworldwide.com/resources/ait-holiday-schedules/united-states/]\n\n * LinkedIn [https://www.linkedin.com/company/24870]\n * Facebook [https://www.facebook.com/AITWorldwide]\n * YouTube [https://www.youtube.com/user/aitait701]",
+          "extraction time": "05-02-2026 (6:42 PM)",
+          "processing status": "PENDING"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 4,
+          "id": 202605021842090,
+          "business name": "New York JFK - 3PL, Supply Chain & Freight Forwarding",
+          "website": "https://www.craneww.com/locations/usa/new-york-jfk/",
+          "email": "",
+          "raw html": "\n[https://px.ads.linkedin.com/collect/?pid=8914164&fmt=gif]\n\n * +1 888-870-2726 [tel:+1-888-870-2726]\n * Request a Quote [/request-a-quote/]\n * Sign & Ship [/sign-and-ship/]\n * Careers [/about-us/careers/]\n\n * Connect to C-view [https://cview.craneww.com/]\n * Track Shipments [https://webtracker.craneww.com/]\n * Integration Portal [https://developers.craneww.com/]\n * Languages [/]\n   * English [https://bit.ly/cww_home]\n   * Chinese (Traditional) [https://zh-TW.craneww.com]\n   * Chinese (Simplified) [https://zh-CN.craneww.com/]\n   * Deutsch [https://de.craneww.com/]\n   * Italian [https://it.craneww.com/]\n   * Korean [https://ko.craneww.com]\n   * Portuguese [https://pt.craneww.com/]\n   * Spanish [https://es.craneww.com/]\n\nCrane Worldwide [/site/templates/dist/img/logo-crane.svg] /\nRequest a Quote [/request-a-quote/] /search/ Mobile Menu Toggle\n * Services [/solutions/]\n   * Air Freight [/solutions/air-freight/]\n   * Contract Logistics [/solutions/contract-logistics/]\n   * Customs Broker [/solutions/customs-brokerage/]\n   * Ground [/solutions/ground-services/]\n   * Ocean Freight [/solutions/ocean-freight/]\n   * Project Logistics [/solutions/project-logistics/]\n   * Rail Freight [/solutions/railfreight/]\n   * Cargo Insurance [/solutions/cargo-insurance/]\n   * E-commerce Shipping [/solutions/ecommerce-shipping/]\n   * Managed Transportation [/solutions/transportation-management/]\n     * Crane TMS [/solutions/transportation-management/crane-tms/]\n     * Less Than Truckload Shipping (LTL)\n       [/solutions/transportation-management/less-than-truckload-shipping/]\n   * Trade Advisory [/solutions/trade-advisory/]\n   * Value Added Services [/solutions/value-added-solutions/]\n   * Battery Logistics [/solutions/battery-logistics/]\n   * NextGen Logistics [/solutions/nextgen-logistics/]\n   * Time-Critical Logistics Solutions [/solutions/time-critical-logistics/]\n * Industries [/industries/]\n   * Aerospace [/industries/aerospace-logistics/]\n   * Automotive [/industries/automotive/]\n   * Consumer Goods Logistics [/industries/consumer-goods/]\n   * Cruise, Marine, and Hospitality\n     [/industries/cruise-marine-and-hospitality-logistics/]\n   * Energy [/industries/energy-logistics/]\n   * Government [/industries/government/]\n   * Hi-Tech [/industries/hi-tech/]\n   * Industrial [/industries/industrial/]\n   * Life Sciences [/industries/life-sciences/]\n   * Mining [/industries/mining/]\n * Technology [/logistics-technology/]\n   * Shipment Tracking [/logistics-technology/shipment-tracking/]\n   * Common Integration Standards\n     [/logistics-technology/common-integration-standards/]\n   * Warehouse Management System (WMS)\n     [/logistics-technology/warehouse-management-system/]\n   * Tariff Response Unit [/logistics-technology/tarfiff-response-unit/]\n * About Us [/about-us/]\n   * Our Value [/about-us/our-value/]\n   * Leadership [/about-us/leadership/]\n   * Careers [/about-us/careers/]\n   * Sustainability [/about-us/sustainabilty/]\n   * Community Support [/about-us/crane-cares/]\n   * Security [/about-us/security/]\n   * Compliance [/about-us/compliance/]\n   * QHSE [/about-us/quality-health-safety-and-environment/]\n * Knowledge Center [/knowledge-center/]\n   * Market Update [/knowledge-center/market-update/]\n   * Industry Insight News [/knowledge-center/latest-news-and-info/]\n   * Trade Advisory Notices [/knowledge-center/trade-advisory-notices/]\n   * Case Studies [/knowledge-center/case-studies/]\n   * Podcast [/knowledge-center/podcast/]\n   * Incoterms® - Guide to shipping terms [/knowledge-center/incoterms/]\n   * Press Center [/knowledge-center/press-center/]\n * Locations [/locations/]\n * Careers [/careers/]\n\nRequest a Quote [/request-a-quote/] /search/\nCrane Worldwide [/site/templates/dist/img/logo-crane.svg] /\nRequest a Quote [/request-a-quote/] /search/ Mobile Menu Toggle\n * Services [/solutions/]\n   * Air Freight [/solutions/air-freight/]\n   * Contract Logistics [/solutions/contract-logistics/]\n   * Customs Broker [/solutions/customs-brokerage/]\n   * Ground [/solutions/ground-services/]\n   * Ocean Freight [/solutions/ocean-freight/]\n   * Project Logistics [/solutions/project-logistics/]\n   * Rail Freight [/solutions/railfreight/]\n   * Cargo Insurance [/solutions/cargo-insurance/]\n   * E-commerce Shipping [/solutions/ecommerce-shipping/]\n   * Managed Transportation [/solutions/transportation-management/]\n     * Crane TMS [/solutions/transportation-management/crane-tms/]\n     * Less Than Truckload Shipping (LTL)\n       [/solutions/transportation-management/less-than-truckload-shipping/]\n   * Trade Advisory [/solutions/trade-advisory/]\n   * Value Added Services [/solutions/value-added-solutions/]\n   * Battery Logistics [/solutions/battery-logistics/]\n   * NextGen Logistics [/solutions/nextgen-logistics/]\n   * Time-Critical Logistics Solutions [/solutions/time-critical-logistics/]\n * Industries [/industries/]\n   * Aerospace [/industries/aerospace-logistics/]\n   * Automotive [/industries/automotive/]\n   * Consumer Goods Logistics [/industries/consumer-goods/]\n   * Cruise, Marine, and Hospitality\n     [/industries/cruise-marine-and-hospitality-logistics/]\n   * Energy [/industries/energy-logistics/]\n   * Government [/industries/government/]\n   * Hi-Tech [/industries/hi-tech/]\n   * Industrial [/industries/industrial/]\n   * Life Sciences [/industries/life-sciences/]\n   * Mining [/industries/mining/]\n * Technology [/logistics-technology/]\n   * Shipment Tracking [/logistics-technology/shipment-tracking/]\n   * Common Integration Standards\n     [/logistics-technology/common-integration-standards/]\n   * Warehouse Management System (WMS)\n     [/logistics-technology/warehouse-management-system/]\n   * Tariff Response Unit [/logistics-technology/tarfiff-response-unit/]\n * About Us [/about-us/]\n   * Our Value [/about-us/our-value/]\n   * Leadership [/about-us/leadership/]\n   * Careers [/about-us/careers/]\n   * Sustainability [/about-us/sustainabilty/]\n   * Community Support [/about-us/crane-cares/]\n   * Security [/about-us/security/]\n   * Compliance [/about-us/compliance/]\n   * QHSE [/about-us/quality-health-safety-and-environment/]\n * Knowledge Center [/knowledge-center/]\n   * Market Update [/knowledge-center/market-update/]\n   * Industry Insight News [/knowledge-center/latest-news-and-info/]\n   * Trade Advisory Notices [/knowledge-center/trade-advisory-notices/]\n   * Case Studies [/knowledge-center/case-studies/]\n   * Podcast [/knowledge-center/podcast/]\n   * Incoterms® - Guide to shipping terms [/knowledge-center/incoterms/]\n   * Press Center [/knowledge-center/press-center/]\n * Locations [/locations/]\n * Careers [/careers/]\n\nRequest a Quote [/request-a-quote/] /search/\nUnited States of America [/locations/usa/]\n\n\nNEW YORK (JFK)\n\n\n[/site/templates/dist/img/location-bg.jpg]\n\n[/site/assets/files/1359/newyork_locationpage.800x500.png]\n\n\nLOGISTICS IN NEW YORK\n\nLocated in the near vicinity of New York's JFK airport, our freight forwarding\nand logistics team are available to support your domestic and international\ncargo needs.\n\nCrane Worldwide Logistics New York offer a wide range of supply chain services\nincluding full freight forwarding services, customs brokerage and warehousing,\nwe will provide flexible logistics solutions so you can concentrate on your\nbusiness.\n\nReach out for support!\n\n\nNEED A FREIGHT FORWARDING AND LOGISTICS COMPANY IN NEW YORK? \n\nCargo loading at JFK airport\n[/site/assets/files/1359/air_freight_cargo.290x0-is.jpg]Our freight forwarding,\nlogistics and transportation experts in New York work in partnership with our\nclients offering tailor-made supply chain solutions including International Air\nfreight [https://craneww.com/solutions/air-freight/], Ocean freight\n[https://craneww.com/solutions/ocean-freight/], Project Logistics\n[/solutions/project-logistics/] and Contract Logistics\n[https://craneww.com/solutions/contract-logistics/] with full warehousing\ncapabilities.\n\nSupported by a global network of offices [/locations/] to ensure your\ninternational supply chain requirements are fully met in an ever changing\nmarketplace, need a freight forwarder in New York? Please don't hesitate to\nreach out with all your logistics inquiries. \n\n> Did you know? \n> \n> Crane Worldwide Logistics Trade Advisory [/solutions/trade-advisory/] services\n> offer a full consultation service for all your international import and export\n> needs.\n\n\n\nLOCATION & CONTACT DETAILS\n\n70 East Sunrise Highway Suite 410\nValley Stream,\nNew York, NY 11581 USA\n[https://www.google.com/maps?q=Crane+Worldwide+Logistics&sll=40.658770,-73.697070]\n+1 516 285 1236\nEmail Us [webquery@craneww.com]\n\nSERVICES\n\n * Air Freight\n * Ocean Freight\n * Customs Brokerage\n * Domestic transportation\n * Logistics\n * Supply Chain Solutions\n * Value Added Services\n * Warehousing\n * White Glove\n * Insurance\n * Break bulk\n\nVALUE ADDED SERVICES\n\nConsolidation Service, PO Management, Vendor Management, Compliance Consulting,\nGlobal Supply Chain Management, Pick/Pack and Order Fulfillment\n\n\nREQUEST A QUOTE\n\nLet one of our client advocates build a solution that fits your logistics needs.\n\nRequest a Quote [/request-a-quote/]\n+1 888-870-2726\n[/site/templates/dist/img/section-texture.jpg]\n\n\nNAVIGATION\n\n * Services [/solutions/]\n * Industries [/industries/]\n * Technology [/logistics-technology/]\n * About Us [/about-us/]\n * Knowledge Center [/knowledge-center/]\n * Locations [/locations/]\n * Careers [/careers/]\n\n\nCONTACT US\n\nEmail Us [webquery@craneww.com]\n\n1500 Rankin Road\nHouston, TX 77073\n\n+1 888-870-2726\n\nEthics Reporting (PDF) [/site/assets/files/3607/ethicspoint2025.pdf]\n\nModern Slavery Statement [/modern-slavery-statement/]\n\nCode of Conduct [/site/assets/files/3607/code-of-conduct-4_16_26_external.pdf]\n\n\nFOLLOW US\n\n * facebook [https://www.facebook.com/CraneWorldwide/]\n * linkedin [https://www.linkedin.com/company/crane-worldwide-logistics_2/]\n * https://twitter.com/@cwwlogistics\n * youtube [https://www.youtube.com/channel/UCWmBEeR7nQr6vM07d32Ytxg]\n * instagram [https://www.instagram.com/crane_worldwide_logistics/]\n\n\n\n * Home [/] Mobile Menu Toggle\n * Services [/solutions/] Down Arrow Icon\n   * Air Freight [/solutions/air-freight/]\n   * Contract Logistics [/solutions/contract-logistics/]\n   * Customs Broker [/solutions/customs-brokerage/]\n   * Ground [/solutions/ground-services/]\n   * Ocean Freight [/solutions/ocean-freight/]\n   * Project Logistics [/solutions/project-logistics/]\n   * Rail Freight [/solutions/railfreight/]\n   * Cargo Insurance [/solutions/cargo-insurance/]\n   * E-commerce Shipping [/solutions/ecommerce-shipping/]\n   * Managed Transportation [/solutions/transportation-management/] Down Arrow\n     Icon\n     * Crane TMS [/solutions/transportation-management/crane-tms/]\n     * Less Than Truckload Shipping (LTL)\n       [/solutions/transportation-management/less-than-truckload-shipping/]\n   * Trade Advisory [/solutions/trade-advisory/]\n   * Value Added Services [/solutions/value-added-solutions/]\n   * Battery Logistics [/solutions/battery-logistics/]\n   * NextGen Logistics [/solutions/nextgen-logistics/]\n   * Time-Critical Logistics Solutions [/solutions/time-critical-logistics/]\n * Industries [/industries/] Down Arrow Icon\n   * Aerospace [/industries/aerospace-logistics/]\n   * Automotive [/industries/automotive/]\n   * Consumer Goods Logistics [/industries/consumer-goods/]\n   * Cruise, Marine, and Hospitality\n     [/industries/cruise-marine-and-hospitality-logistics/]\n   * Energy [/industries/energy-logistics/]\n   * Government [/industries/government/]\n   * Hi-Tech [/industries/hi-tech/]\n   * Industrial [/industries/industrial/]\n   * Life Sciences [/industries/life-sciences/]\n   * Mining [/industries/mining/]\n * Technology [/logistics-technology/] Down Arrow Icon\n   * Shipment Tracking [/logistics-technology/shipment-tracking/]\n   * Common Integration Standards\n     [/logistics-technology/common-integration-standards/]\n   * Warehouse Management System (WMS)\n     [/logistics-technology/warehouse-management-system/]\n   * Tariff Response Unit [/logistics-technology/tarfiff-response-unit/]\n * About Us [/about-us/] Down Arrow Icon\n   * Our Value [/about-us/our-value/]\n   * Leadership [/about-us/leadership/]\n   * Careers [/about-us/careers/]\n   * Sustainability [/about-us/sustainabilty/]\n   * Community Support [/about-us/crane-cares/]\n   * Security [/about-us/security/]\n   * Compliance [/about-us/compliance/]\n   * QHSE [/about-us/quality-health-safety-and-environment/]\n * Knowledge Center [/knowledge-center/] Down Arrow Icon\n   * Market Update [/knowledge-center/market-update/]\n   * Industry Insight News [/knowledge-center/latest-news-and-info/]\n   * Trade Advisory Notices [/knowledge-center/trade-advisory-notices/]\n   * Case Studies [/knowledge-center/case-studies/]\n   * Podcast [/knowledge-center/podcast/]\n   * Incoterms® - Guide to shipping terms [/knowledge-center/incoterms/]\n   * Press Center [/knowledge-center/press-center/]\n * Locations [/locations/]\n * Careers [/careers/]\n\n--------------------------------------------------------------------------------\n\n * Request a Quote [/request-a-quote/]\n * Careers [/about-us/careers/]\n * Sign & Ship [/sign-and-ship/]\n * Connect to C-view [https://cview.craneww.com/]\n * Track Shipments [https://tracker.craneww.com/WebTracker/ShipmentTracker]\n * Integration Portal [https://developers.craneww.com/]\n\n--------------------------------------------------------------------------------\n\n * Languages Down Arrow Icon\n   * English [https://bit.ly/cww_home]\n   * Chinese (Traditional) [https://zh-TW.craneww.com]\n   * Chinese (Simplified) [https://zh-CN.craneww.com/]\n   * Deutsch [https://de.craneww.com/]\n   * Italian [https://it.craneww.com/]\n   * Korean [https://ko.craneww.com]\n   * Portuguese [https://pt.craneww.com/]\n   * Spanish [https://es.craneww.com/]",
+          "extraction time": "05-02-2026 (6:42 PM)",
+          "processing status": "PENDING"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "info extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "no email checker": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "valid email checker": {
+      "main": [
+        [
+          {
+            "node": "valid email filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "valid email filter": {
+      "main": [
+        [
+          {
+            "node": "adding list of leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "info extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "info extractor": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "no email checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "adding list of leads": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "valid email checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "vHDCdotz1dZH93n6",
+    "timezone": "Asia/Kathmandu",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "2c2d6c89-b851-43ab-bb01-4e64fae7cdd8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "706c4e5b4bf3d250b976867d4126cf479316c4e28af929dc822a581a6e5a47bc"
+  },
+  "id": "0Y6SAjNzHnl7lglf",
+  "tags": []
+}

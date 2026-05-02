@@ -1,0 +1,76 @@
+{
+  "name": "error handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b4df0d84-9dd2-4407-bc25-fc197912eb56",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        592,
+        624
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0B0F0DQ57D",
+          "mode": "list",
+          "cachedResultName": "n8n-alerts"
+        },
+        "text": "=🚨 *Workflow Error Detected* --- *Project:* {{ $json.workflow.name }} *Node:* {{ $json.execution.lastNodeExecuted }} *Issue:* {{ $json.execution.error.message }}  🔗 <{{ $json.execution.url }}|View Execution in n8n>",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        800,
+        624
+      ],
+      "id": "4494e7ac-c6de-49a2-aaa8-fc60ce353816",
+      "name": "Send a message",
+      "webhookId": "4e40447d-9410-4b6f-8d3d-2061f35023be",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "csj7E0rX9XwicTAL",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2c1e76f5-e7c7-4f10-ae1a-ab1a3ae9420f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "706c4e5b4bf3d250b976867d4126cf479316c4e28af929dc822a581a6e5a47bc"
+  },
+  "id": "vHDCdotz1dZH93n6",
+  "tags": []
+}

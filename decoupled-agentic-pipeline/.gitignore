@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Node / JS tooling
+node_modules/
+dist/
+build/
+coverage/
+
+# n8n runtime and local data
+.n8n/
+*.sqlite
+*.sqlite-journal
+*.db
+*.log
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Editor settings
+.vscode/
+.idea/

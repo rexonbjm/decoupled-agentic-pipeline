@@ -1,0 +1,299 @@
+{
+  "name": "webhook trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "track-open",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cedfe4ab-515f-49ce-a8b3-5b883b331f98",
+      "name": "Webhook",
+      "webhookId": "131279ad-a3cb-45d0-86f2-2eaee4b7f234"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This generates a valid 1x1 transparent GIF\nconst base64Pixel = 'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';\n\nreturn [\n  {\n    json: {}, // Keep JSON empty to be clean\n    binary: {\n      data: { // This 'data' is the name of the property\n        data: base64Pixel,\n        mimeType: 'image/gif',\n        fileName: 'pixel.gif',\n      }\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "4903162a-4bcc-4fab-b320-b1949dfb4fa0",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "responseDataSource": "set",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        832,
+        0
+      ],
+      "id": "64cfc55b-7cd4-4dfb-942b-d3983e47d28f",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4",
+          "mode": "list",
+          "cachedResultName": "outreached",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Webhook').item.json.query.leadId }}",
+            "status": "SEEN"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "business name",
+              "displayName": "business name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "business description",
+              "displayName": "business description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "fun fact",
+              "displayName": "fun fact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "sent time",
+              "displayName": "sent time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "fe2d5213-576f-4141-b907-b38864bf9eb3",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "tzDxclWOV2vlbSUu",
+          "name": "freelance lead sheet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get the timestamp from the URL query parameters\nconst sentAt = parseInt($json.query.sentAt); \nconst openedAt = new Date().getTime(); \n\n// Calculate the difference in seconds\nconst secondsDiff = (openedAt - sentAt) / 1000;\n\nreturn {\n  secondsDiff: secondsDiff,\n  isHuman: secondsDiff > 5 // Adjust this based on your testing\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4533d916-8798-4328-8ca9-4c2dbad0225a",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3fe9f85e-c22a-47be-b5de-0c90b806abcb",
+              "leftValue": "={{ $json.isHuman }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "40dc5c69-2ec2-467c-a476-75151cdfae8d",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        608,
+        176
+      ],
+      "id": "8b3a5dbd-92a5-47de-8e06-7c122f19ab0e",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "vHDCdotz1dZH93n6",
+    "timezone": "Asia/Kathmandu",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "19645f14-baa3-4e83-a307-0968a974c32a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "706c4e5b4bf3d250b976867d4126cf479316c4e28af929dc822a581a6e5a47bc"
+  },
+  "id": "h2x3OPtDtXxk7O3T",
+  "tags": []
+}

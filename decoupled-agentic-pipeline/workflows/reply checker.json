@@ -1,0 +1,275 @@
+{
+  "name": "reply checker",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "088eb797-bf1b-4d6e-9f2d-11638ceee5ef",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "rTtFz42ahkdlB0o1",
+          "name": "freelance mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY",
+          "mode": "list",
+          "cachedResultName": "extracted data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "email",
+              "lookupValue": "={{ $json.From.split('<').pop().replace('>', '').trim() }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "2d076bd6-f1fd-4d0e-aaf1-035ba438b8db",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "tzDxclWOV2vlbSUu",
+          "name": "freelance lead sheet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4",
+          "mode": "list",
+          "cachedResultName": "outreached",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "REPLIED"
+          },
+          "matchingColumns": [
+            "Email Address"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "business name",
+              "displayName": "business name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "business description",
+              "displayName": "business description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "fun fact",
+              "displayName": "fun fact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "sent time",
+              "displayName": "sent time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "256b6c90-f76e-4859-9eb4-0237016768c5",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "tzDxclWOV2vlbSUu",
+          "name": "freelance lead sheet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0B11F28YEA",
+          "mode": "list",
+          "cachedResultName": "lead-reply"
+        },
+        "text": "={{ $('Get row(s) in sheet').item.json['Company Name'] }} has replied!",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "4e8c9f04-3d75-4cbc-a432-d4c80fb637c7",
+      "name": "Send a message",
+      "webhookId": "475f9eca-5e96-4400-a767-6d8c9df32822",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "csj7E0rX9XwicTAL",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "vHDCdotz1dZH93n6",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "a112ec74-914b-442f-bf2c-ade5255caccd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "706c4e5b4bf3d250b976867d4126cf479316c4e28af929dc822a581a6e5a47bc"
+  },
+  "id": "F6gj18IgE8WqF8v5",
+  "tags": []
+}
