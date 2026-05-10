@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Bajimaya"
+    given-names: "Rekson"
+    email: "freelance@reksonbajimaya.com.np"
+    affiliation: "Independent Researcher"
+orcid: https://orcid.org/0009-0005-1486-2335
+title: "Decoupled Agentic Pipelines: n8n Workflow for Automated Lead Generation"
+version: 1.0.0
+doi: 10.5281/zenodo.20103301
+date-released: 2026-05-10
+url: "https://github.com/rexonbjm/decoupled-agentic-pipeline"
