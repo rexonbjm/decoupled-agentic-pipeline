@@ -81,7 +81,7 @@
     },
     {
       "parameters": {
-        "text": "=You are a perfect cold mail generator for a freelancer named Rekson Bajimaya.\n\nHere's the Information about the Recipient:{{ $json.description }}\n{{ $json['fun fact'] }}\n\nCompany Name: {{ $json['company name'] }}\n\nEmail Style / Email Tune : Sharp professional but also show my cool side\n\nThe Email style is given just to understand how the mail will be.\n\nInstructions:\n\n1. Always start with giving a greting to the Company like Hi Company Name,\n2. Always use I not We.\n3. Mail have to be professional, Clean and to the point\n4. Use the given description and fun fact to draft the most perfect cold mail proving them that I've actually looked into them and not only randomly found them\n4. At last give a Signature Like:\n   Rekson Bajimaya\n   Automation Lead\n5. Also input my freelance website: \"https://www.freelance.reksonbajimaya.com.np/\"",
+        "text": "=You are a perfect cold mail generator for a freelancer named [YOUR NAME].\n\nHere's the Information about the Recipient:{{ $json.description }}\n{{ $json['fun fact'] }}\n\nCompany Name: {{ $json['company name'] }}\n\nEmail Style / Email Tune : Sharp professional but also show my cool side\n\nThe Email style is given just to understand how the mail will be.\n\nInstructions:\n\n1. Always start with giving a greting to the Company like Hi Company Name,\n2. Always use I not We.\n3. Mail have to be professional, Clean and to the point\n4. Use the given description and fun fact to draft the most perfect cold mail proving them that I've actually looked into them and not only randomly found them\n4. At last give a Signature Like:\n   [YOUR NAME]\n   Automation Lead\n5. Also input my freelance website: \"[YOUR WEBSITE]\"",
         "attributes": {
           "attributes": [
             {
@@ -126,7 +126,7 @@
             {
               "id": "a044aba7-105e-4784-b745-5477551aa6a7",
               "name": "Pixel HTML",
-              "value": "=https://n8n.reksonbajimaya.com.np/webhook/track-open?leadId={{ $('Loop Over Items1').item.json.id }}&sentAt={{ new Date().getTime() }}",
+              "value": "=https://[YOUR TRACKING DOMAIN]/webhook/track-open?leadId={{ $('Loop Over Items1').item.json.id }}&sentAt={{ new Date().getTime() }}",
               "type": "string"
             },
             {

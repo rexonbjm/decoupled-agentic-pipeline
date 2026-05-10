@@ -58,7 +58,7 @@
     },
     {
       "parameters": {
-        "url": "=https://api.apify.com/v2/acts/apify~google-search-scraper/run-sync-get-dataset-items?token=apify_api_daQokrk3iVdHwPf62TUu4fM13s065k3ttixi",
+        "url": "=https://api.apify.com/v2/acts/apify~google-search-scraper/run-sync-get-dataset-items?token=DUMMY_APIFY_API_KEY",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n    \"queries\": \"{{ $json['Business Type'] }} in {{ $json.Location }}\",\n    \"maxPagesPerQuery\": {{ $json['Lead Number'] }},\n    \"resultsPerPage\": 10,\n    \"maxResults\": 500,\n    \"mobileResults\": false,\n    \"includeOrganicResults\": true,\n    \"includeAds\": false\n}",
