@@ -3,9 +3,9 @@
   "nodes": [
     {
       "parameters": {
-        "sendTo": "legendu481@gmail.com",
-        "subject": "={{ $('cold email generator').item.json.output['Mail Subject'] }}",
-        "message": "={{ $('cold email generator').item.json.output['Mail Body'] }}\n<img src=\"{{ $json['Pixel HTML'] }}\" width=\"1\" height=\"1\" style=\"display:none !important;\" />",
+        "sendTo": "={{ $json['Email Address'] }}",
+        "subject": "={{ $json['Mail subject'] }}",
+        "message": "={{ $json['Mail body'] }}\n<img src=\"{{ $json['Pixel HTML'] }}\" width=\"1\" height=\"1\" style=\"display:none !important;\" />",
         "options": {
           "appendAttribution": false
         }
@@ -15,8 +15,8 @@
       "type": "n8n-nodes-base.gmail",
       "maxTries": 2,
       "position": [
-        848,
-        288
+        1024,
+        112
       ],
       "webhookId": "9ce15ceb-1aeb-4dd7-b269-f981f431c05f",
       "executeOnce": false,
@@ -28,18 +28,18 @@
           "name": "freelance mail"
         }
       },
-      "onError": "continueRegularOutput"
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
-        "amount": 1
+        "amount": 65
       },
       "id": "7ac9e885-d167-445d-8ec9-610c60484107",
       "name": "Wait",
       "type": "n8n-nodes-base.wait",
       "position": [
-        384,
-        80
+        1584,
+        400
       ],
       "webhookId": "a8a457d5-f88d-451c-ac51-1af17c8435b0",
       "typeVersion": 1.1
@@ -61,14 +61,14 @@
     },
     {
       "parameters": {
-        "modelName": "models/gemini-2.5-flash-lite",
+        "modelName": "models/gemini-2.5-flash",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.1,
       "position": [
-        256,
-        496
+        432,
+        320
       ],
       "id": "9edcb975-9466-4828-a189-15f5e2c68282",
       "name": "Google Gemini Chat Model1",
@@ -81,7 +81,7 @@
     },
     {
       "parameters": {
-        "text": "=You are a perfect cold mail generator for a freelancer named Rekson Bajimaya.\n\nHere's the Information about the Recipient:{{ $json.description }}\n{{ $json['fun fact'] }}\n\nCompany Name: {{ $json['company name'] }}\n\nEmail Style / Email Tune : Sharp professional but also show my cool side\n\nThe Email style is given just to understand how the mail will be.\n\nInstructions:\n\n1. Always start with giving a greting to the Company like Hi Company Name,\n2. Always use I not We.\n3. Mail have to be professional, Clean and to the point\n4. Use the given description and fun fact to draft the most perfect cold mail proving them that I've actually looked into them and not only randomly found them\n4. At last give a Signature Like:\n   Rekson Bajimaya\n   Automation Lead",
+        "text": "=You are a perfect cold mail generator for a freelancer named Rekson Bajimaya.\n\nHere's the Information about the Recipient:{{ $json.description }}\n{{ $json['fun fact'] }}\n\nCompany Name: {{ $json['company name'] }}\n\nEmail Style / Email Tune : Sharp professional but also show my cool side\n\nThe Email style is given just to understand how the mail will be.\n\nInstructions:\n\n1. Always start with giving a greting to the Company like Hi Company Name,\n2. Always use I not We.\n3. Mail have to be professional, Clean and to the point\n4. Use the given description and fun fact to draft the most perfect cold mail proving them that I've actually looked into them and not only randomly found them\n4. At last give a Signature Like:\n   Rekson Bajimaya\n   Automation Lead\n5. Also input my freelance website: \"https://www.freelance.reksonbajimaya.com.np/\"",
         "attributes": {
           "attributes": [
             {
@@ -102,8 +102,8 @@
       "name": "cold email generator",
       "type": "@n8n/n8n-nodes-langchain.informationExtractor",
       "position": [
-        176,
-        288
+        352,
+        112
       ],
       "typeVersion": 1.2
     },
@@ -121,12 +121,24 @@
               "id": "a102af99-f990-4f54-aa19-96a4c8002a9b",
               "name": "Email Address",
               "type": "string",
-              "value": "={{ $('Wait').item.json.email }}"
+              "value": "={{ $('Loop Over Items1').item.json.email }}"
             },
             {
               "id": "a044aba7-105e-4784-b745-5477551aa6a7",
               "name": "Pixel HTML",
-              "value": "=https://n8n.reksonbajimaya.com.np/webhook/track-open?leadId={{ $('Wait').item.json.id }}&sentAt={{ new Date().getTime() }}",
+              "value": "=https://n8n.reksonbajimaya.com.np/webhook/track-open?leadId={{ $('Loop Over Items1').item.json.id }}&sentAt={{ new Date().getTime() }}",
+              "type": "string"
+            },
+            {
+              "id": "41b35ffe-39cd-4443-a42f-e0b6bf84a197",
+              "name": "Mail subject",
+              "value": "={{ $('cold email generator').item.json.output['Mail Subject'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ecfddf4a-79fc-4da5-9b3d-1e28f28df8e7",
+              "name": "Mail body",
+              "value": "={{ $('cold email generator').item.json.output['Mail Body'] }}",
               "type": "string"
             }
           ]
@@ -137,8 +149,8 @@
       "name": "email fields generator",
       "type": "n8n-nodes-base.set",
       "position": [
-        688,
-        288
+        864,
+        112
       ],
       "typeVersion": 3.4
     },
@@ -164,11 +176,12 @@
           "mappingMode": "defineBelow",
           "value": {
             "id": "={{ $('Update row in sheet').item.json.id }}",
-            "business name": "={{ $('Wait').item.json['company name'] }}",
-            "business description": "={{ $('Wait').item.json.description }}",
-            "fun fact": "={{ $('Wait').item.json['fun fact'] }}",
             "sent time": "={{ $('email fields generator').item.json['Send Time'] }}",
-            "status": "SENT"
+            "status": "SENT",
+            "business name": "={{ $('Loop Over Items1').item.json['company name'] }}",
+            "business description": "={{ $('Loop Over Items1').item.json.description }}",
+            "fun fact": "={{ $('Loop Over Items1').item.json['fun fact'] }}",
+            "email": "={{ $('Loop Over Items1').item.json.email }}"
           },
           "matchingColumns": [
             "id"
@@ -230,15 +243,14 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "row_number",
-              "displayName": "row_number",
+              "id": "email",
+              "displayName": "email",
               "required": false,
               "defaultMatch": false,
               "display": true,
-              "type": "number",
+              "type": "string",
               "canBeUsedToMatch": true,
-              "readOnly": true,
-              "removed": true
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -250,8 +262,8 @@
       "name": "update send time and status",
       "type": "n8n-nodes-base.googleSheets",
       "position": [
-        1024,
-        288
+        1200,
+        112
       ],
       "typeVersion": 4.6,
       "credentials": {
@@ -273,10 +285,10 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": "gid=0",
+          "value": 1641396337,
           "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit#gid=0"
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit#gid=1641396337"
         },
         "filtersUI": {
           "values": [
@@ -342,7 +354,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "status": "PROCESSED",
-            "id": "={{ $('Wait').item.json.id }}"
+            "id": "={{ $('Loop Over Items1').item.json.id }}"
           },
           "matchingColumns": [
             "id"
@@ -437,8 +449,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        496,
-        288
+        672,
+        112
       ],
       "id": "8fbed4bc-f55d-4beb-a746-92e41a599be1",
       "name": "Update row in sheet",
@@ -448,94 +460,151 @@
           "name": "freelance lead sheet"
         }
       }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY",
+          "mode": "list",
+          "cachedResultName": "extracted data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "ERROR",
+            "id": "={{ $('Loop Over Items1').item.json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "fun fact",
+              "displayName": "fun fact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        336
+      ],
+      "id": "ec22873c-b2a0-4b7a-b66e-6b14fe4926bf",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleApi": {
+          "id": "tzDxclWOV2vlbSUu",
+          "name": "freelance lead sheet"
+        }
+      }
     }
   ],
-  "pinData": {
-    "Wait": [
-      {
-        "json": {
-          "row_number": 2,
-          "id": 202605021842030,
-          "company name": "Logistics Company in New York",
-          "email": "info@omnilogistics.com",
-          "description": "Omni Logistics provides global freight forwarding, 3PL warehousing, and specialized distribution solutions for complex transportation needs.",
-          "fun fact": "Omni Logistics recently expanded their reach and integrated Mach 1 Global into their organization to broaden their transportation capabilities.",
-          "url": "https://omnilogistics.com/locations/omni-logistics-new-york-logistics-company-in-new-york-new-york/",
-          "status": "NONE"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "cold email generator": [
-      {
-        "json": {
-          "output": {
-            "Mail Subject": "Boosting Omni Logistics' Global Reach with Automation",
-            "Mail Body": "Hi Omni Logistics,<br><br>I noticed your recent expansion and integration with Mach 1 Global – impressive moves to broaden your transportation capabilities!<br><br>As the logistics landscape continues to evolve at lightning speed, I help companies like yours streamline operations and enhance efficiency through smart automation. I specialize in identifying and implementing solutions that reduce manual effort, minimize errors, and ultimately drive significant cost savings and improved delivery times.<br><br>I believe there are some exciting opportunities to further optimize your expanded network and complex distribution needs. I'd be keen to explore how a tailored automation strategy could complement your recent growth and contribute to even greater success.<br><br>Would you be open to a brief chat next week to discuss potential synergies?<br><br>Best regards,<br><br>Rekson Bajimaya<br>Automation Lead"
-          }
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "Get row(s) in sheet": [
-      {
-        "json": {
-          "row_number": 2,
-          "id": 202605021842030,
-          "company name": "Logistics Company in New York",
-          "email": "info@omnilogistics.com",
-          "description": "Omni Logistics provides global freight forwarding, 3PL warehousing, and specialized distribution solutions for complex transportation needs.",
-          "fun fact": "Omni Logistics recently expanded their reach and integrated Mach 1 Global into their organization to broaden their transportation capabilities.",
-          "url": "https://omnilogistics.com/locations/omni-logistics-new-york-logistics-company-in-new-york-new-york/",
-          "status": "NONE"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "Schedule Trigger": [
-      {
-        "json": {
-          "timestamp": "2026-05-02T10:00:27.432-04:00",
-          "Readable date": "May 2nd 2026, 10:00:27 am",
-          "Readable time": "10:00:27 am",
-          "Day of week": "Saturday",
-          "Year": "2026",
-          "Month": "May",
-          "Day of month": "02",
-          "Hour": "10",
-          "Minute": "00",
-          "Second": "27",
-          "Timezone": "America/New_York (UTC-04:00)"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "Update row in sheet": [
-      {
-        "json": {
-          "status": "PROCESSED",
-          "id": 202605021842030
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ]
-  },
+  "pinData": {},
   "connections": {
     "Send a message": {
       "main": [
         [
           {
             "node": "update send time and status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update row in sheet1",
             "type": "main",
             "index": 0
           }
@@ -546,7 +615,7 @@
       "main": [
         [
           {
-            "node": "cold email generator",
+            "node": "Loop Over Items1",
             "type": "main",
             "index": 0
           }
@@ -558,7 +627,7 @@
         [],
         [
           {
-            "node": "Wait",
+            "node": "cold email generator",
             "type": "main",
             "index": 0
           }
@@ -602,7 +671,7 @@
       "main": [
         [
           {
-            "node": "Loop Over Items1",
+            "node": "Wait",
             "type": "main",
             "index": 0
           }
@@ -641,6 +710,17 @@
           }
         ]
       ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -653,7 +733,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "dc29b9da-4ee6-44b6-9d7f-b0ae6c95ad0b",
+  "versionId": "e27eef13-ab67-48e9-869b-a772398783a3",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "706c4e5b4bf3d250b976867d4126cf479316c4e28af929dc822a581a6e5a47bc"

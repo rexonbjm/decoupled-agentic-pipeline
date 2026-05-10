@@ -39,10 +39,10 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": "gid=0",
+          "value": 1641396337,
           "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4/edit#gid=0"
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit#gid=1641396337"
         },
         "filtersUI": {
           "values": [
@@ -92,10 +92,11 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "status": "REPLIED"
+            "status": "REPLIED",
+            "email": "={{ $('Gmail Trigger').item.json.From.split('<').pop().replace('>', '').trim()  }}"
           },
           "matchingColumns": [
-            "Email Address"
+            "email"
           ],
           "schema": [
             {
@@ -151,6 +152,16 @@
             {
               "id": "status",
               "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -265,7 +276,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "a112ec74-914b-442f-bf2c-ade5255caccd",
+  "versionId": "35331901-ff86-493b-ab87-9785d549d9d7",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "706c4e5b4bf3d250b976867d4126cf479316c4e28af929dc822a581a6e5a47bc"

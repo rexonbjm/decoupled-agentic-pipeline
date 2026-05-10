@@ -1,20 +1,32 @@
 # Decoupled Agentic Lead Pipeline
 
-A modular n8n lead-generation system for collecting prospects, enriching them with AI, sending personalized outreach, tracking opens, monitoring replies, and surfacing failures.
+[![DOI](https://zenodo.org/badge/1227209906.svg)](https://doi.org/10.5281/zenodo.20103300)
+
+## Abstract
+
+We present a modular, agentic lead-generation pipeline built on n8n that automates the end-to-end process of identifying, enriching, and engaging prospects through AI-driven personalization. The system decouples each stage—data collection, AI extraction, outreach delivery, open tracking, and reply monitoring—enabling independent optimization and replacement of pipeline components. Operating on commodity hardware (M4 Pro) with containerized orchestration (Docker), this pipeline achieves a unit cost of $0.02 per qualified lead while maintaining personalization at scale.
+
+## System Architecture
+
+The pipeline leverages three core technologies:
+
+- **n8n**: Open-source workflow automation engine that orchestrates the entire pipeline
+- **Docker**: Containerized deployment enabling reproducibility and portability
+- **M4 Pro Hardware**: Demonstrates efficient execution on consumer-grade processors
+
+Each workflow stage can be imported, modified, and tested independently within n8n, allowing researchers and practitioners to swap components without full system restructuring.
+
+## Unit Economics
+
+This system achieves a cost of **$0.02 per qualified lead** through:
+- Efficient API usage (Google Search via Apify)
+- Minimal compute overhead (M4 Pro-grade hardware)
+- Consolidated email delivery (Gmail integration)
+- Lightweight tracking infrastructure
+
+## Architecture Overview
 
 ![Architecture diagram](docs/architecture-diagram.png)
-
-## What it does
-
-This project is split into small workflows so each part can be edited, tested, and replaced independently:
-
-- capture lead criteria from a form
-- scrape and filter search results for real business sites
-- extract company details and generate outreach assets with AI
-- send personalized cold email campaigns
-- track open events with a lightweight webhook pixel
-- watch inbox replies and update lead status
-- notify Slack when a workflow fails
 
 ## Workflow Map
 
@@ -86,8 +98,62 @@ decoupled-agentic-pipeline/
 - Several nodes reference existing Google Sheets, Gmail, Slack, and Apify credentials inside n8n.
 - The repository contains workflow exports only; import them into your n8n instance to run the pipeline.
 
-## Suggested Next Steps
+## Installation
 
-1. Import the workflows into n8n in the order shown above.
-2. Replace the hard-coded credentials, sheet IDs, and webhook domain with your own values.
-3. Test the pipeline with a small lead batch before scaling it up.
+### Prerequisites
+
+- n8n instance (self-hosted or cloud)
+- Google Sheets account
+- Gmail account with app password enabled
+- Slack workspace (for error notifications)
+- Apify account (for web scraping)
+- Docker (recommended for deployment)
+
+### Importing Workflows
+
+1. **Download the workflow files** from the `workflows/` directory in this repository.
+2. **In n8n**, navigate to **Workflows** → **Import from file**.
+3. **Import each .json file** in this order:
+   - `data collection.json`
+   - `ai extraction.json`
+   - `outreacher.json`
+   - `webhook trigger.json`
+   - `reply checker.json`
+   - `error handler.json`
+4. **Configure credentials** in each workflow:
+   - Google Sheets credentials
+   - Gmail credentials (app password)
+   - Slack webhook URL
+   - Apify API key
+   - Webhook domain (for open tracking pixel)
+5. **Link sheets and trigger nodes** to your own Google Sheets and endpoints.
+6. **Test** with a small batch of leads before scaling.
+
+### Docker Deployment
+
+To run n8n with this pipeline in Docker:
+
+```bash
+docker run -it --rm \
+  -p 5678:5678 \
+  -v ~/.n8n:/home/node/.n8n \
+  n8nio/n8n
+```
+
+Import the workflows via the UI, then configure your credentials and environment variables.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](../LICENSE) file in the root directory for details.
+
+## Citation
+
+If you use this pipeline in your research, please cite:
+
+```bibtex
+@software{decoupled_agentic_pipeline,
+  title={Decoupled Agentic Lead Pipeline},
+  doi={10.5281/zenodo.20103300},
+  year={2026}
+}
+```

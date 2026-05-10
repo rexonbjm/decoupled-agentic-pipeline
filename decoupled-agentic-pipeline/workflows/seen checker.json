@@ -1,5 +1,5 @@
 {
-  "name": "webhook trigger",
+  "name": "seen checker",
   "nodes": [
     {
       "parameters": {
