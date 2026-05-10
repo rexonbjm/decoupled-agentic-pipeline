@@ -160,17 +160,17 @@
         "operation": "appendOrUpdate",
         "documentId": {
           "__rl": true,
-          "value": "1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4",
+          "value": "[SPREADSHEET_ID_3]",
           "mode": "list",
           "cachedResultName": "outreached",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID_3]/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vzQriy13HTIaiQ2RdN-B3Zh8R2U9aEbN-ZXzDltPwO4/edit#gid=0"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID_3]/edit#gid=0"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -278,17 +278,17 @@
         "authentication": "serviceAccount",
         "documentId": {
           "__rl": true,
-          "value": "13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY",
+          "value": "[SPREADSHEET_ID_1]",
           "mode": "list",
           "cachedResultName": "extracted data",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID_1]/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": 1641396337,
           "mode": "list",
           "cachedResultName": "Sheet2",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit#gid=1641396337"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID_1]/edit#gid=1641396337"
         },
         "filtersUI": {
           "values": [
@@ -338,17 +338,17 @@
         "operation": "update",
         "documentId": {
           "__rl": true,
-          "value": "13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY",
+          "value": "[SPREADSHEET_ID_1]",
           "mode": "list",
           "cachedResultName": "extracted data",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID_1]/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit#gid=0"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID_1]/edit#gid=0"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -467,17 +467,17 @@
         "operation": "update",
         "documentId": {
           "__rl": true,
-          "value": "13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY",
+          "value": "[SPREADSHEET_ID_1]",
           "mode": "list",
           "cachedResultName": "extracted data",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID_1]/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Q-GVIVRZq2ISuNBk-reL8fqyQCbZuJGU4x0SvtIgWY/edit#gid=0"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID_1]/edit#gid=0"
         },
         "columns": {
           "mappingMode": "defineBelow",
