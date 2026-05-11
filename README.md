@@ -26,7 +26,7 @@ This system achieves a cost of **$0.02 per qualified lead** through:
 
 ## Architecture Overview
 
-![Architecture diagram](docs/architecture-diagram.png)
+![Architecture diagram](decoupled-agentic-pipeline/docs/architecture-diagram.png)
 
 ## Workflow Map
 
